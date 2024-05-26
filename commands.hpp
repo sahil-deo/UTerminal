@@ -14,6 +14,8 @@ void write(int args, char* commands[]);
 void search(int args, char* commands[]);
 void Delete(int args, char* commands[]);
 void append(int args, char* commands[]);
+void list(int args, char* commands[]);
+void create(int args, char* commands[]);
 void help();
 
 #endif // FUNCTIONS_HPP

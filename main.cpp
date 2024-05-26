@@ -40,14 +40,20 @@ void checkCommands(int args, char *commands[])
 	{
 		write(args, commands);
 	}
-	else if (command == "delete")
+	else if (command == "delete" || command == "remove" || command == "rm")
 	{
 		Delete(args, commands);
 	}
-	else if (command == "append") {
+	else if (command == "append" || command == "app") {
 		append(args, commands);
 	}
-	else if (command == "--help")
+	else if (command == "list" || command == "ls") {
+		list(args, commands);
+	}
+	else if (command == "create") {
+		create(args, commands);
+	}
+	else if (command == "--help" || command == "-h")
 	{
 		help();
 	}
