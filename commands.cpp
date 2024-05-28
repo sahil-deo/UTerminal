@@ -5,11 +5,12 @@
 #include <cstdio>
 #include <vector>
 #include <filesystem>
+#include <curl/curl.h>
 
 namespace fs = std::filesystem;
 
 //std::cerr << "\033[31m" << " " << "\033[0m" << std::endl;
-
+void fetchData(std::string outputFilename, std::string url); 
 
 void line(int n)
 {
@@ -263,6 +264,18 @@ void create(int args, char* commands[]) {
 	}
 }
 
+void curl_get(int args, char* commands[]) {
+	if (args <= 3) {
+		std::cerr << "\033[31m" << "Incomplete Arguments" << "\033[0m" << std::endl;
+		std::cerr << "\033[31m" << "Command Implementation: curl_get [url] [output file]" << "\033[0m" << std::endl;
+		return;
+	}
+
+	fetchData(commands[3], commands[2]);
+
+
+}
+
 void help()
 {
 	line(1);
@@ -271,9 +284,57 @@ void help()
 	std::cout << "search [filename.extention] [WordToSearch]" << std::endl;
 	std::cout << "write" << std::endl;
 	std::cout << "delete [filename.extention]" << std::endl;
-	std::cout << "append [file1name.extention] [file2name.extention] // appends file 2 to file 1" << std::endl;
+	std::cout << "append [file1name.extention] [file2name.extention] // appends fil e 2 to file 1" << std::endl;
 	std::cout << "append [filename.extention] // start writing what is too be appended" << std::endl;
 	std::cout << "list" << std::endl;
 	std::cout << "create [directory name] //To create a new directory" << std::endl;
 	line(1);
 }
+
+
+#pragma region CURL FETCH DATA FUNCTIONS
+
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+	size_t totalSize = size * nmemb;
+	std::ofstream* ofs = static_cast<std::ofstream*>(userp);
+	ofs->write(static_cast<char*>(contents), totalSize);
+	return totalSize;
+}
+
+void fetchData(std::string outputFilename, std::string url) {
+
+	CURL* curl;
+	CURLcode res;
+	
+
+	curl_global_init(CURL_GLOBAL_DEFAULT);
+	curl = curl_easy_init();
+
+	if (curl) {
+		std::ofstream ofs(outputFilename, std::ios::binary);
+
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ofs);
+
+		res = curl_easy_perform(curl);
+
+		if (res != CURLE_OK) {
+			std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+		}
+		else {
+			std::cout << "File downloaded successfully." << std::endl;
+		}
+
+		ofs.close();
+		curl_easy_cleanup(curl);
+	}
+
+	curl_global_cleanup();
+
+}
+
+
+#pragma endregion

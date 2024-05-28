@@ -53,6 +53,9 @@ void checkCommands(int args, char *commands[])
 	else if (command == "create") {
 		create(args, commands);
 	}
+	else if (command == "curl_get") {
+		curl_get(args, commands);
+	}
 	else if (command == "--help" || command == "-h")
 	{
 		help();

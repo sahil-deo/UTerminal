@@ -16,6 +16,7 @@ void Delete(int args, char* commands[]);
 void append(int args, char* commands[]);
 void list(int args, char* commands[]);
 void create(int args, char* commands[]);
+void curl_get(int args, char* commands[]);
 void help();
 
 #endif // FUNCTIONS_HPP
