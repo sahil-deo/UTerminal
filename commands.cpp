@@ -150,23 +150,36 @@ void Delete(int args, char* commands[])
 
 		if (fs::remove(fs::current_path().string() + "/" + commands[2]) != 0)
 		{
+			line(1);
 			std::cerr << "\033[31m\"" << commands[2] << "\" " << "Unable to Remove Directory" << "\033[0m" << std::endl;
+			line(1);
 		}		
 	}
 	else if (fs::is_regular_file(commands[2])) {
 
 		if (std::remove(commands[2]) != 0)
 		{
+			line(1);
 			std::cerr << "\033[31m\"" << commands[2] << "\" " << "Unable to Remove File" << "\033[0m" << std::endl;
+			line(1);
+		}
+		else {
+			line(1);
+			std::cout << "Successfully removed " << commands[2] << std::endl;
+			line(1);
 		}
 	}else{
+		line(1);
 		std::cerr << "\033[31m\"" << commands[2] << "\" " << "Unable to Remove" << "\033[0m" << std::endl;
+		line(1);
 	}
 }
 
 void append(int args, char* commands[]) {
 	if (args <= 2) {
+		line(1);
 		std::cerr << "\033[31m" <<  "Incomplete Arguments" << "\033[0m" << std::endl;
+		line(1);
 		return;
 	}
 
@@ -261,17 +274,25 @@ void create(int args, char* commands[]) {
 		dir += "/";
 		dir += commands[2];
 		fs::create_directory(dir);
+		line(1);
+		std::cout << "Directory Created Succesfully" << std::endl;
+		line(1);
+
 	}
 }
 
 void curl_get(int args, char* commands[]) {
 	if (args <= 3) {
+		line(1);
 		std::cerr << "\033[31m" << "Incomplete Arguments" << "\033[0m" << std::endl;
 		std::cerr << "\033[31m" << "Command Implementation: curl_get [url] [output file]" << "\033[0m" << std::endl;
+		line(1);
 		return;
 	}
 
+	line(1);
 	fetchData(commands[3], commands[2]);
+	line(1);
 
 
 }
@@ -279,15 +300,17 @@ void curl_get(int args, char* commands[]) {
 void help()
 {
 	line(1);
-	std::cout << "Commands: " << std::endl;
-	std::cout << "read [filename.extention]" << std::endl;
-	std::cout << "search [filename.extention] [WordToSearch]" << std::endl;
-	std::cout << "write" << std::endl;
-	std::cout << "delete [filename.extention]" << std::endl;
-	std::cout << "append [file1name.extention] [file2name.extention] // appends fil e 2 to file 1" << std::endl;
-	std::cout << "append [filename.extention] // start writing what is too be appended" << std::endl;
-	std::cout << "list" << std::endl;
-	std::cout << "create [directory name] //To create a new directory" << std::endl;
+	std::cout << "Commands:" << std::endl;
+	std::cout << "---------" << std::endl;
+	std::cout << "1. read [filename.extension]" << std::endl;
+	std::cout << "2. search [filename.extension] [WordToSearch]" << std::endl;
+	std::cout << "3. write" << std::endl;
+	std::cout << "4. delete [filename.extension]" << std::endl;
+	std::cout << "5. append [file1name.extension] [file2name.extension] // appends file 2 to file 1" << std::endl;
+	std::cout << "   append [filename.extension] // start writing what is too be appended" << std::endl;
+	std::cout << "6. list" << std::endl;
+	std::cout << "7. create [directory name] //To create a new directory" << std::endl;
+	std::cout << "8. curl_get [url] [filename.extension] //To download a file over the network " << std::endl;
 	line(1);
 }
 
