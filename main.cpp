@@ -56,6 +56,12 @@ void checkCommands(int args, char *commands[])
 	else if (command == "curl_get") {
 		curl_get(args, commands);
 	}
+	else if (command == "pwd") {
+		pwd(args, commands);
+	}
+	else if (command == "random") {
+		random(args, commands);
+	}
 	else if (command == "--help" || command == "-h")
 	{
 		help();

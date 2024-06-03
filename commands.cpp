@@ -6,7 +6,7 @@
 #include <vector>
 #include <filesystem>
 #include <curl/curl.h>
-
+#include <random>
 namespace fs = std::filesystem;
 
 //std::cerr << "\033[31m" << " " << "\033[0m" << std::endl;
@@ -297,6 +297,47 @@ void curl_get(int args, char* commands[]) {
 
 }
 
+void pwd(int args, char* commands[]) {
+	if (args > 1) {
+		line(1);
+		std::cout << std::filesystem::current_path() << std::endl;
+		line(1);
+	}
+}
+
+void random(int args, char* commands[]) {
+	if (args == 2) {
+		line(1);
+		std::cerr << "\033[31m" << "Provide a range for random number generation" << "\033[0m" << std::endl;
+		line(1);
+		return;
+	}
+	else if (args == 3) {
+		line(1);
+		std::cerr << "\033[31m" << "Provide a upper bound for random number generation" << "\033[0m" << std::endl;
+		line(1);
+		return;
+	}
+	int low = atoi(commands[2]);
+	int high = atoi(commands[3]);
+
+	if (low > high) {
+		low = low + high;
+		high = low - high;
+		low = low - high;
+	}
+	
+	std::random_device rd;
+	std::mt19937 gen(rd());
+
+	std::uniform_int_distribution<> dis(low, high);
+	int random = dis(gen);
+	
+	line(1);
+	std::cout << random << std::endl;
+	line(1);
+}
+
 void help()
 {
 	line(1);
@@ -311,6 +352,8 @@ void help()
 	std::cout << "6. list" << std::endl;
 	std::cout << "7. create [directory name] //To create a new directory" << std::endl;
 	std::cout << "8. curl_get [url] [filename.extension] //To download a file over the network " << std::endl;
+	std::cout << "9. pwd //Get present working directory" << std::endl;
+	std::cout << "10. random [interger] [interger] //To get a random number from a range of numbers" << std::endl;
 	line(1);
 }
 
