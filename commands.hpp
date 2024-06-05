@@ -19,6 +19,8 @@ void create(int args, char* commands[]);
 void curl_get(int args, char* commands[]);
 void pwd(int args, char* commands[]);
 void random(int args, char* commands[]);
+void encrypt(int args, char* commands[]);
+void decrypt(int args, char* commands[]);
 void help();
 
 #endif // FUNCTIONS_HPP

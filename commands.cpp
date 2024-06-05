@@ -7,10 +7,16 @@
 #include <filesystem>
 #include <curl/curl.h>
 #include <random>
+#include <string>
 namespace fs = std::filesystem;
 
 //std::cerr << "\033[31m" << " " << "\033[0m" << std::endl;
-void fetchData(std::string outputFilename, std::string url); 
+
+//Function prototypes for helper functions
+void fetchData(std::string outputFilename, std::string url);
+
+long long getFileSize(std::string file);
+
 
 void line(int n)
 {
@@ -30,7 +36,7 @@ void read(int args, char* commands[])
 
 	std::string text;
 	std::ifstream reader;
-	reader.open(commands[2]);
+	reader.open(commands[2], std::ios::binary);
 
 	if (!reader.is_open())
 	{
@@ -83,10 +89,10 @@ void write(int args, char* commands[])
 void search(int args, char* commands[])
 {
 
-	if (args < 3)
+	if (args < 4)
 	{
 		line(1);
-		std::cerr << "\033[31m" << "Key not given" << "\033[0m" << std::endl;
+		std::cerr << "\033[31m" << "Invalid Syntax please used uterminal --help to learn the correct argument syntax" << "\033[0m" << std::endl;
 		line(1);
 		return;
 	}
@@ -96,6 +102,16 @@ void search(int args, char* commands[])
 	reader.open(commands[2]);
 	int Line = 0, Char = 0, KeyChar = 0;
 	bool flag = false;
+
+	if (args == 5 && commands[4] == "-i") {
+		for (int i = 0; i < key.length(); i++) {
+			key[i] = tolower(key[i]);
+			//std::cout << key[i] << std::endl;
+		}
+
+		//std::cout << key << std::endl;
+	}
+
 
 	if (!reader.is_open())
 	{
@@ -111,7 +127,7 @@ void search(int args, char* commands[])
 		for (char c : text)
 		{
 			Char++;
-			if (key[KeyChar] == c)
+			if (key[KeyChar] == tolower(c))
 			{
 				KeyChar++;
 				if (KeyChar == key.length())
@@ -217,45 +233,50 @@ void list(int args, char* commands[]) {
 
 	line(1);
 
-	std::cout << "Name" << std::endl << "----" << std::endl;
+	std::cout << std::setw(20) << "Name" << std::setw(20) << "Size" << std::endl;
+	std::cout << std::setw(20) << "----" << std::setw(20) << "----" << std::endl;
 	std::vector<std::string> files = {};
 	if (args == 2) {
 
 		for (auto& file : fs::directory_iterator(fs::current_path())) {
-			if (fs::is_regular_file(file))
-			{
-				files.push_back(file.path().filename().string());				
-			}
-			else {
-				files.push_back(file.path().filename().string().append(" (Directory)"));
-
-			}
+				files.push_back(file.path().filename().string());
 		}
 
 		for (std::string file : files) {
-			std::cout << file << std::endl;
+
+			long long fileSize = getFileSize(file);
+			if (fileSize == -1) {
+				std::cout << std::setw(20) << file << std::setw(20) << "(Directory)" << std::endl;
+			}
+			else {
+
+				std::cout << std::setw(20) << file << std::setw(20) << fileSize << std::endl;
+			}
 		}
 
 	}
-	else if (args > 2){
+	else if (args == 2){
 		std::vector<std::string> extentions = {};
 		for (int i = 2; i < args; i++) {
 			extentions.push_back(commands[i]);
 		}
-		for (const auto& file : fs::recursive_directory_iterator(fs::current_path()))
+		for (const auto& file : fs::directory_iterator(fs::current_path()))
 		{
 			if (fs::is_regular_file(file))
 			{
 				if (extentions.empty() ||
 					std::find(extentions.begin(), extentions.end(), file.path().extension().string()) != (extentions.end()))
 				{
+					long long fileSize = getFileSize(file.path().filename().string());
+
 					files.push_back(file.path().filename().string());
 				}
 			}
 		}
 
 		for (std::string file : files) {
-			std::cout << file << std::endl;
+			long long fileSize = getFileSize(file);
+			std::cout << std::setw(20) << file << std::setw(20) << "( " << fileSize << " )" << std::endl;
 		}
 
 	}
@@ -338,25 +359,163 @@ void random(int args, char* commands[]) {
 	line(1);
 }
 
+void encrypt(int args, char* commands[]) {
+	//uterminal encrypt filename
+	if (args != 4) {
+		std::cerr << "\033[31m" << "Invalid Command Syntax" << "\033[0m" << std::endl;
+		return;
+	}
+
+	std::string key = commands[3];
+
+	std::string fileName = commands[2];
+
+
+	std::string outFileName = "enc.";
+	outFileName.append(fileName);
+
+
+	std::ifstream file(fileName, std::ios::binary);
+	std::ofstream ofile(outFileName, std::ios::binary);
+
+
+	if (!file.is_open()) {
+		std::cerr << "Error opening file: " << fileName << std::endl;
+		return;
+	}
+	if (!ofile.is_open()) {
+		std::cerr << "Error creating Encrpyted file: " << std::endl;
+		return;
+	}
+
+
+	std::vector<char> buffer = {};
+	buffer = std::vector<char>((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+	size_t keyLen = key.size();
+	
+	for (size_t i = 0; i < buffer.size(); i++) {
+		buffer[i] ^= key[i % keyLen];
+	}
+	
+	ofile.write(buffer.data(), buffer.size());
+
+	line(1);
+	std::cout << "File Encrpyted and saved as" << outFileName << std::endl;
+	line(1);
+	
+	ofile.close();
+	file.close();
+}
+
+void decrypt(int args, char* commands[]) {
+
+	if (args != 4) {
+		std::cerr << "\033[31m" << "Invalid Command Syntax" << "\033[0m" << std::endl;
+		return;
+	}
+
+	std::string key = commands[3];
+
+	std::string fileName = commands[2];
+
+	std::string outFileName = "dec.";
+	
+	if (fileName[0] == 'e' && fileName[1] == 'n' && fileName[2] == 'c' && fileName[3] == '.') {
+		
+		std::string fnm = fileName;
+		fnm = fnm.substr(4, (fileName.length() - 1));
+		outFileName.append(fnm);
+	}
+	else {
+		outFileName.append(fileName);
+	}
+	
+
+	std::ifstream file(fileName, std::ios::binary);
+	std::ofstream ofile(outFileName, std::ios::binary);
+
+
+	if (!file.is_open()) {
+		std::cerr << "Error opening file: " << fileName << std::endl;
+		return;
+	}
+	if (!ofile.is_open()) {
+		std::cerr << "Error creating Decrypted file: " << std::endl;
+		return;
+	}
+
+
+	std::vector<char> buffer = {};
+	buffer = std::vector<char>((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+	size_t keyLen = key.size();
+
+	for (size_t i = 0; i < buffer.size(); i++) {
+		buffer[i] ^= key[i % keyLen];
+	}
+
+	ofile.write(buffer.data(), buffer.size());
+
+	line(1);
+	std::cout << "File Decrypted and saved as" << outFileName << std::endl;
+	line(1);
+
+	ofile.close();
+	file.close();
+}
+
 void help()
 {
 	line(1);
 	std::cout << "Commands:" << std::endl;
 	std::cout << "---------" << std::endl;
 	std::cout << "1. read [filename.extension]" << std::endl;
-	std::cout << "2. search [filename.extension] [WordToSearch]" << std::endl;
+	std::cout << "2. search [filename.extension] [WordToSearch] <-i>" << std::endl;
+	std::cout << "   use the -i flag to make the search incase-sensitive" << std::endl;
 	std::cout << "3. write" << std::endl;
 	std::cout << "4. delete [filename.extension]" << std::endl;
+	std::cout << "   remove [filename.extension]" << std::endl;
+	std::cout << "   rm [filename.extension]" << std::endl;
 	std::cout << "5. append [file1name.extension] [file2name.extension] // appends file 2 to file 1" << std::endl;
 	std::cout << "   append [filename.extension] // start writing what is too be appended" << std::endl;
+	std::cout << "   app [filename.extension] // start writing what is too be appended" << std::endl;
 	std::cout << "6. list" << std::endl;
+	std::cout << "   ls" << std::endl;
 	std::cout << "7. create [directory name] //To create a new directory" << std::endl;
 	std::cout << "8. curl_get [url] [filename.extension] //To download a file over the network " << std::endl;
 	std::cout << "9. pwd //Get present working directory" << std::endl;
 	std::cout << "10. random [interger] [interger] //To get a random number from a range of numbers" << std::endl;
+	std::cout << "11. encrypt [filename] [key] //key is like a password" << std::endl;
+	std::cout << "    enc [filename] [key]" << std::endl;
+	std::cout << "12. decrypt [filename] [key] //use key (password) to get the original file back" << std::endl;
+	std::cout << "    dec [filename] [key] " << std::endl;
 	line(1);
 }
 
+
+
+//helper functions 
+
+long long getFileSize(std::string fileName) {
+	//uterminal size filename.ext
+
+	char buffer[4096];
+	long long fileSize = 0;
+
+	std::ifstream file(fileName, std::ios::binary);
+
+	if (!file.is_open()) {
+		return -1;
+	}
+
+	while (file.read(buffer, sizeof(buffer))) {
+		fileSize += file.gcount();
+	}
+	fileSize += file.gcount();
+
+	return fileSize;
+}
 
 #pragma region CURL FETCH DATA FUNCTIONS
 

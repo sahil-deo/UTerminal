@@ -62,6 +62,13 @@ void checkCommands(int args, char *commands[])
 	else if (command == "random") {
 		random(args, commands);
 	}
+	else if (command == "encrypt" || command == "enc")
+	{
+		encrypt(args, commands);
+	}
+	else if (command == "decrypt" || command == "dec") {
+		decrypt(args, commands);
+	}
 	else if (command == "--help" || command == "-h")
 	{
 		help();
