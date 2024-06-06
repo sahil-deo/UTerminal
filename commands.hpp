@@ -22,5 +22,6 @@ void random(int args, char* commands[]);
 void encrypt(int args, char* commands[]);
 void decrypt(int args, char* commands[]);
 void help();
+void version();
 
 #endif // FUNCTIONS_HPP

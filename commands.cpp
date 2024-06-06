@@ -103,13 +103,23 @@ void search(int args, char* commands[])
 	int Line = 0, Char = 0, KeyChar = 0;
 	bool flag = false;
 
-	if (args == 5 && commands[4] == "-i") {
+	if (args == 5 && strcmp(commands[4], "-i") == 0) {
 		for (int i = 0; i < key.length(); i++) {
 			key[i] = tolower(key[i]);
 			//std::cout << key[i] << std::endl;
 		}
 
 		//std::cout << key << std::endl;
+	}
+	else if (args == 5) {
+		line(1);
+		std::cerr << "\033[31m" << "Invalid Syntax please used uterminal --help for the correct argument syntax" << "\033[0m" << std::endl;
+		line(1);
+		for (int i = 0; i < args; i++) {
+			std::cout << commands[i] << " ";
+		}
+		std::cout << std::endl;
+		return;
 	}
 
 
@@ -127,20 +137,40 @@ void search(int args, char* commands[])
 		for (char c : text)
 		{
 			Char++;
-			if (key[KeyChar] == tolower(c))
-			{
-				KeyChar++;
-				if (KeyChar == key.length())
+
+			if (args == 5) {
+				if (key[KeyChar] == tolower(c))
 				{
-					flag = true;
-					Char = Char - (key.length() - 1);
-					break;
+					KeyChar++;
+					if (KeyChar == key.length())
+					{
+						flag = true;
+						Char = Char - (key.length() - 1);
+						break;
+					}
+				}
+				else
+				{
+					KeyChar = 0;
+				}
+			}else{
+				if (key[KeyChar] == c)
+				{
+					KeyChar++;
+					if (KeyChar == key.length())
+					{
+						flag = true;
+						Char = Char - (key.length() - 1);
+						break;
+					}
+				}
+				else
+				{
+					KeyChar = 0;
 				}
 			}
-			else
-			{
-				KeyChar = 0;
-			}
+
+			
 		}
 		if (flag)
 			break;
@@ -401,7 +431,7 @@ void encrypt(int args, char* commands[]) {
 	ofile.write(buffer.data(), buffer.size());
 
 	line(1);
-	std::cout << "File Encrpyted and saved as" << outFileName << std::endl;
+	std::cout << "File Encrpyted and saved as " << outFileName << std::endl;
 	line(1);
 	
 	ofile.close();
@@ -458,7 +488,7 @@ void decrypt(int args, char* commands[]) {
 	ofile.write(buffer.data(), buffer.size());
 
 	line(1);
-	std::cout << "File Decrypted and saved as" << outFileName << std::endl;
+	std::cout << "File Decrypted and saved as " << outFileName << std::endl;
 	line(1);
 
 	ofile.close();
@@ -490,6 +520,14 @@ void help()
 	std::cout << "    enc [filename] [key]" << std::endl;
 	std::cout << "12. decrypt [filename] [key] //use key (password) to get the original file back" << std::endl;
 	std::cout << "    dec [filename] [key] " << std::endl;
+	line(1);
+}
+
+void version() {
+	line(1);
+	std::cout << "UTERMINAL VERSION 1.3 INSTALLED" << std::endl << std::endl;
+	std::cout << "VISIT https://github.com/sahil-deo/Uterminal FOR THE SOURCE CODE" << std::endl;
+	std::cout << "VISIT https://github.com/sahil-deo/UTerminal/releases FOR THE LATEST RELEASES" << std::endl;
 	line(1);
 }
 

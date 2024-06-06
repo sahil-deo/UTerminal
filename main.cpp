@@ -73,6 +73,9 @@ void checkCommands(int args, char *commands[])
 	{
 		help();
 	}
+	else if (command == "--version" || command == "-v") {
+		version();
+	}
 	else
 	{
 		line(1);

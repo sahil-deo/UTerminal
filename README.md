@@ -12,6 +12,7 @@ Add the Path of the folder where UTerminal is to the path.
 2. Go to 'Environment Variables' on the opened window.
 3. Under 'User Variables' go to 'path' and click 'Edit'.
 4. click on 'New' and paste the path to 'Uterminal.exe'.
+5. use uterminal --version to see if UTerminal has been set up properly
 
 Alternatively you can just use './uterminal' before any command if you dont want to set up path but './uterminal' will not work on CMD and will require Windows PowerShell.
 
@@ -22,6 +23,8 @@ Note: To run a command use: (if path is not added then use ./uterminal instead o
 uterminal [commandname] [arguments]
 
 ---
+
+use utemrinal --help tp get a list of all commands
 
 ## Commands:
 
@@ -111,6 +114,23 @@ eg. uterminal list .exe
 //returns a random number from the range of provided numbers.
 //only returns integers ( even if float are provided they are rounded off to the nearest integer).
 //order of numbers does not matter ( n1 can be less or greater than n2).
+
+---
+
+11. encrypt
+    uterminal encrypt [filename] [key]
+    eg. uterminal encrypt sample.txt password
+
+//Encrypt a file (of any type) using a key.
+//Same key will be used to decrpyt the file
+
+---
+
+12. decrypt
+    uterminal decrypt [Encrpyted filename] [key]
+    eg. uterminal decrypt enc.sample.txt password
+
+//Decrypts an encrpted file using the key it was encrypted with.
 
 ---
 
